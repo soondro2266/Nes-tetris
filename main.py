@@ -4,7 +4,6 @@ import torch.nn.functional as F
 import TetrisDataset
 from DQN import DQN
 from tetris import tetris
-from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
@@ -16,7 +15,7 @@ model = DQN(device)
 train_gap = 1
 epoch = 20
 
-for i in tqdm(range(epoch)):
+for i in range(epoch):
     game.reset()
     states:dict = game.get_next_states()
     current_state = [0, 0, 0, 0]

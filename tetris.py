@@ -85,10 +85,14 @@ class tetris:
             self.current_pos[1] += 1
         self.current_pos[1] -= 1
 
-        self.board = self._add_block(self._rotate_block(rotation), self.current_pos)
-        line_cleared, self.board = self._clear_lines(self.board)
-        score = 1 + (line_cleared ** 2) * tetris.BOARD_WIDTH
-        self.score += score
+        if self._check_error(self._rotate_block(rotation), self.current_pos):
+            self.game_over = True
+            score = 0
+        else:
+            self.board = self._add_block(self._rotate_block(rotation), self.current_pos)
+            line_cleared, self.board = self._clear_lines(self.board)
+            score = 1 + (line_cleared ** 2) * tetris.BOARD_WIDTH
+            self.score += score
 
         # Start new round
         self._next_round()
