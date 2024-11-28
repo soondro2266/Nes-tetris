@@ -75,7 +75,7 @@ class tetris:
         return
 
     def play(self, x, rotation, render = False):
-        self.current_pos = [x, 0]
+        self.current_pos = [x, 3]
         self.current_rotation = rotation
         
         while not self._check_error(self._rotate_block(rotation), self.current_pos):
@@ -84,20 +84,22 @@ class tetris:
                 sleep(0.01)
             self.current_pos[1] += 1
         self.current_pos[1] -= 1
-
+        """
         if self._check_error(self._rotate_block(rotation), self.current_pos):
             self.game_over = True
-            score = 0
-        else:
-            self.board = self._add_block(self._rotate_block(rotation), self.current_pos)
-            line_cleared, self.board = self._clear_lines(self.board)
-            score = 1 + (line_cleared ** 2) * tetris.BOARD_WIDTH
-            self.score += score
+            score = -1
+        else:"""
+        self.board = self._add_block(self._rotate_block(rotation), self.current_pos)
+        line_cleared, self.board = self._clear_lines(self.board)
+        score = 1 + (line_cleared ** 2) * tetris.BOARD_WIDTH
+        self.score += score
 
-        # Start new round
         self._next_round()
         if self.game_over:
             score -= 2
+
+        # Start new round
+        
 
 
         return score, self.game_over

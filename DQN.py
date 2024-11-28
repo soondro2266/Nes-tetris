@@ -46,7 +46,7 @@ class DQN(nn.Module):
         for x_batch, y_batch in iterator:
             optimizer.zero_grad()
             y_prediction = self.forward(x_batch)
-            loss:torch.Tensor = self.criterion(y_prediction, y_batch)
+            loss:torch.Tensor = self.criterion(y_prediction, y_batch.unsqueeze(dim = 1))
             loss.backward()
             optimizer.step()
         #clear memory
