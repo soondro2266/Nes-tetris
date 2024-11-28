@@ -69,9 +69,10 @@ class tetris:
         self.waiting_queue = list(range(len(tetris.TETROMINOS)))
         random.shuffle(self.waiting_queue)
         self.line_cleared = 0
-        self.current_pos = [0, 0]
+        self.current_pos = [3, 0]
         self.current_rotation = 0
         self.current_block = self.waiting_queue.pop()
+        return
 
     def play(self, x, rotation, render = False):
         self.current_pos = [x, 0]
@@ -80,7 +81,7 @@ class tetris:
         while not self._check_error(self._rotate_block(rotation), self.current_pos):
             if render:
                 self.render(self._add_block(self._rotate_block(rotation), self.current_pos))
-                sleep(0.1)
+                sleep(0.01)
             self.current_pos[1] += 1
         self.current_pos[1] -= 1
 
@@ -94,12 +95,13 @@ class tetris:
         if self.game_over:
             score -= 2
 
+
         return score, self.game_over
 
     def get_next_states(self):
         '''Get all possible next states'''
         states = {}
-        piece_id = self.current_piece
+        piece_id = self.current_block
         
         if piece_id == 6: 
             rotations = [0]
@@ -132,16 +134,17 @@ class tetris:
 
 
     def _do_state(self, board):
-        line = self._clear_lines()
-        hole = self._get_hole()
-        bump = self._get_bump()
-        total_height = self._get_total_height()
+        line, board = self._clear_lines(board)
+        hole = self._get_hole(board)
+        bump = self._get_bump(board)
+        total_height = self._get_total_height(board)
         return [line, hole, bump, total_height]
 
     def _check_queue(self):
         if len(self.waiting_queue) > 0:
             return
         adding_queue = list(range(len(tetris.TETROMINOS)))
+        random.shuffle(adding_queue)
         for block in adding_queue:
             self.waiting_queue.append(block)
         return
@@ -206,17 +209,16 @@ class tetris:
             y += pos[1]
             if x < 0 or x >= tetris.BOARD_WIDTH \
                     or y < 0 or y >= tetris.BOARD_HEIGHT \
-                    or self.board[y][x] == 1:
+                    or self.board[y][x] >= 1:
                 return True
         return False
     
     def _next_round(self):
         self._check_queue()
         
-        self.current_piece = self.waiting_queue.pop()
+        self.current_block = self.waiting_queue.pop()
         self.current_pos = [3, 0]
         self.current_rotation = 0
-
         if self._check_error(self._rotate_block(0), self.current_pos):
             self.game_over = True
 
