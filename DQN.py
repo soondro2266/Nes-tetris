@@ -7,8 +7,9 @@ from TetrisDataset import TetrisDataset
 
 class DQN(nn.Module):
 
-    def __init__(self, device, state_dim=4, action_dim=1, hidden_dim = 32, batch_size=10, lr = 0.001):
+    def __init__(self, device, state_dim=4, action_dim=1, hidden_dim = 32, batch_size=10, lr = 0.01):
         super().__init__()
+        #self.loss = []
         self.memory = []
         self.batch_size = batch_size
         self.device = device
@@ -47,6 +48,7 @@ class DQN(nn.Module):
             optimizer.zero_grad()
             y_prediction = self.forward(x_batch)
             loss:torch.Tensor = self.criterion(y_prediction, y_batch.unsqueeze(dim = 1))
+            #self.loss.append(torch.mean(loss).item())
             loss.backward()
             optimizer.step()
         #clear memory

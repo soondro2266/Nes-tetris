@@ -72,7 +72,6 @@ class tetris:
         self.current_pos = [3, 0]
         self.current_rotation = 0
         self.current_block = self.waiting_queue.pop()
-        return
 
     def play(self, x, rotation, render = False):
         self.current_pos = [x, 3]
@@ -84,24 +83,15 @@ class tetris:
                 sleep(0.01)
             self.current_pos[1] += 1
         self.current_pos[1] -= 1
-        """
-        if self._check_error(self._rotate_block(rotation), self.current_pos):
-            self.game_over = True
-            score = -1
-        else:"""
+        
         self.board = self._add_block(self._rotate_block(rotation), self.current_pos)
         line_cleared, self.board = self._clear_lines(self.board)
-        score = 1 + (line_cleared ** 2) * tetris.BOARD_WIDTH
+        score = 1 + 2*(line_cleared ** 2) * tetris.BOARD_WIDTH
         self.score += score
-
+            
         self._next_round()
         if self.game_over:
-            score -= 2
-
-        # Start new round
-        
-
-
+            score -=2
         return score, self.game_over
 
     def get_next_states(self):
@@ -162,6 +152,13 @@ class tetris:
                 height -= 1
             else: 
                 break
+        return height
+
+    def _get_min_height(self, board):
+        height = 0
+        for i in range(tetris.BOARD_WIDTH):
+            if height > self._get_height(i, board):
+                height = self._get_height(i, board)
         return height
 
     def _get_total_height(self, board):
