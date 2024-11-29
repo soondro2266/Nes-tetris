@@ -8,27 +8,23 @@ import matplotlib.pyplot as plt
 import random
 from tqdm import tqdm
 
-device = torch.device("cuda")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
-
-print("test")
-
 
 train_gap = 1
 render_gap = 100
-epoch = 2000
+epoch = 1500
 all_score = []
-batch_size = 128
+batch_size = 64
 epsilon_start = 1
 epsilon_end = 0
 epsilon_end_epoch = 1000
-add_score_gap = 50
+add_score_gap = 10
 
 
 game = tetris()
 model = DQN(device, batch_size=batch_size)
 
-max_score = -1
 
 for i in tqdm(range(epoch)):
     game.reset()
@@ -36,14 +32,15 @@ for i in tqdm(range(epoch)):
     current_state = [0, 0, 0, 0]
     done = False
     to_render = False
-    if i % render_gap == 0:
+    if i % render_gap  == 0 and i > 800:
         to_render = True
     
+    max_score = -1
+
     while not done:
 
         states:dict = game.get_next_states()
-        factor = (0.8*i/epoch)
-        if random.random() <= max(epsilon_end, epsilon_start - (epsilon_start - epsilon_end)*(i / epsilon_end_epoch)):
+        if random.random() <= max(epsilon_end, epsilon_start - 1.2*(epsilon_start - epsilon_end)*(i / epsilon_end_epoch)):
             best_action = random.choice(list(states))
             best_state = states[best_action]
         else:
@@ -59,52 +56,32 @@ for i in tqdm(range(epoch)):
 
         score, done = game.play(best_action[0], best_action[1], render=to_render)
 
-
         model.add_memory(current_state, best_state, score, done)
         current_state = best_state
 
     max_score = max(max_score, game.score)
     
-
     if i % train_gap == 0:
-        model.train()
+        model.train_dqn(min(0.5+0.9*(i/epoch), 0.95))
 
     if i % add_score_gap == 0:
         all_score.append(max_score)
 
 
-print("finish")
-
 plt.plot([i+1 for i in range(len(all_score))], all_score, 'r', linestyle='solid', label = 'train')
 plt.show()
-"""plt.plot([i+1 for i in range(len(model.loss))], model.loss, 'b', linestyle='solid', label = 'loss')
-plt.show()"""
 
-print("start to evaluate(with bugsssssss)")
+torch.save(model.state_dict(), "model\\modelv2.pth")
 
-for i in range(5):
-    game.reset()
-    
-    current_state = [0, 0, 0, 0]
-    done = False
-    to_render = False
-    if i % render_gap == 0:
-        to_render = True
-    
-    while not done:
+print("start to evaluate")
 
-        states:dict = game.get_next_states()
-        max_q = -1000000
-        best_state = [0, 0, 0, 0]
-        best_action = [3, 0]
-        for action, state in states.items():
-            q = model.predict(state)
-            if q > max_q:
-                best_state = state
-                max_q = q
-                best_action = action
-        _, done = game.play(best_action[0], best_action[1], render=to_render)
+import playground
 
-torch.save(model.state_dict(), "model\\model.pth")
+round = 5
+PATH = "model\\modelv2.pth"
+
+playground.evaluate(device, round, PATH)
+
+
 
 

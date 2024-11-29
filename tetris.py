@@ -91,7 +91,8 @@ class tetris:
             
         self._next_round()
         if self.game_over:
-            score -=2
+            empty = self._get_min_height(self.board)
+            score -= (2 + empty)
         
         if self.score >= 20000:
             self.game_over = True
