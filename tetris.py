@@ -92,6 +92,10 @@ class tetris:
         self._next_round()
         if self.game_over:
             score -=2
+        
+        if self.score >= 20000:
+            self.game_over = True
+        
         return score, self.game_over
 
     def get_next_states(self):

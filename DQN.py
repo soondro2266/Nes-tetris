@@ -7,13 +7,14 @@ from TetrisDataset import TetrisDataset
 
 class DQN(nn.Module):
 
-    def __init__(self, device, state_dim=4, action_dim=1, hidden_dim = 32, batch_size=10, lr = 0.01):
+    def __init__(self, device, state_dim=4, action_dim=1, hidden_dim = 32, batch_size=10, lr = 0.01, discount = 0.95):
         super().__init__()
         #self.loss = []
         self.memory = []
         self.batch_size = batch_size
         self.device = device
         self.lr = lr
+        self.discount = discount
         self.criterion = torch.nn.MSELoss()
         self.L1 = nn.Linear(state_dim, hidden_dim, device=device)
         self.L2 = nn.Linear(hidden_dim, hidden_dim, device=device)
@@ -40,7 +41,7 @@ class DQN(nn.Module):
             if data[3] == 1:
                 y.append(data[2])
             else:
-                y.append(data[2]+self.predict(data[1]))
+                y.append(data[2]+self.discount * self.predict(data[1]))
         ds = TetrisDataset(x, y, self.device)
         iterator = torch.utils.data.DataLoader(ds, self.batch_size, shuffle = True)
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
