@@ -9,9 +9,9 @@ filename = "modelv2.pth"
 model = DQN(device)
 model.load_state_dict(torch.load(f"model\\{filename}", weights_only=True))
 model.eval()
-game = tetris()
+game = tetris(1000)
 
-for i in range(round):
+for i in range(10):
     game.reset()
     
     current_state = [0, 0, 0, 0]

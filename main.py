@@ -15,9 +15,9 @@ save_model = True
 
 train_gap = 1
 render_gap = 100
-epoch = 1500
+epoch = 2000
 all_score = []
-batch_size = 64
+batch_size = 128
 epsilon_start = 1
 epsilon_end = 0
 epsilon_end_epoch = 1000
@@ -72,9 +72,12 @@ for i in tqdm(range(epoch)):
     
     if save_model and game.score > best_score:
         torch.save(model.state_dict(), f"model\\{filename}")
+        print(f"save model for {game.score} point.")
+        best_score = max(best_score, game.score)
     
     if game.score >= end_score:
         break
     
+all_score.append(best_score)
 plt.plot([i+1 for i in range(len(all_score))], all_score, 'r', linestyle='solid', label = 'train')
 plt.show()

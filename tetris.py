@@ -87,12 +87,12 @@ class tetris:
         
         self.board = self._add_block(self._rotate_block(rotation), self.current_pos)
         line_cleared, self.board = self._clear_lines(self.board)
-        score = 1 + 2*(line_cleared ** 2) * tetris.BOARD_WIDTH
+        score = 1 + (line_cleared ** 2) * tetris.BOARD_WIDTH
         self.score += score
             
         self._next_round()
         if self.game_over:
-            empty = self._get_min_height(self.board)
+            empty = self._get_empty_count(self.board)
             score -= (2 + empty)
         
         if self.score >= self.end_score:
@@ -160,12 +160,12 @@ class tetris:
                 break
         return height
 
-    def _get_min_height(self, board):
-        height = 0
+    def _get_empty_count(self, board):
+        count = 0
         for i in range(tetris.BOARD_WIDTH):
-            if height > self._get_height(i, board):
-                height = self._get_height(i, board)
-        return height
+            if self._get_height(i, board) == 0:
+                count += 1
+        return count
 
     def _get_total_height(self, board):
         height = 0
