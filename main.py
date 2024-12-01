@@ -10,6 +10,8 @@ from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
+filename = "modelv2.pth"
+save_model = True
 
 train_gap = 1
 render_gap = 100
@@ -21,10 +23,12 @@ epsilon_end = 0
 epsilon_end_epoch = 1000
 add_score_gap = 10
 
+max_score = -1
+best_score = -1
+end_score = 20000
 
-game = tetris()
+game = tetris(end_score)
 model = DQN(device, batch_size=batch_size)
-
 
 for i in tqdm(range(epoch)):
     game.reset()
@@ -35,8 +39,6 @@ for i in tqdm(range(epoch)):
     if i % render_gap  == 0 and i > 800:
         to_render = True
     
-    max_score = -1
-
     while not done:
 
         states:dict = game.get_next_states()
@@ -66,22 +68,13 @@ for i in tqdm(range(epoch)):
 
     if i % add_score_gap == 0:
         all_score.append(max_score)
-
-
+        max_score = -1
+    
+    if save_model and game.score > best_score:
+        torch.save(model.state_dict(), f"model\\{filename}")
+    
+    if game.score >= end_score:
+        break
+    
 plt.plot([i+1 for i in range(len(all_score))], all_score, 'r', linestyle='solid', label = 'train')
 plt.show()
-
-torch.save(model.state_dict(), "model\\modelv2.pth")
-
-print("start to evaluate")
-
-import playground
-
-round = 5
-PATH = "model\\modelv2.pth"
-
-playground.evaluate(device, round, PATH)
-
-
-
-

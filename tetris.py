@@ -59,8 +59,9 @@ class tetris:
         2: (0, 167, 247),
     }
 
-    def __init__(self):
+    def __init__(self, end_score):
         self.reset()
+        self.end_score = end_score
 
     def reset(self): #newgame
         self.board = [[0]*tetris.BOARD_WIDTH for _ in range(tetris.BOARD_HEIGHT)]
@@ -94,7 +95,7 @@ class tetris:
             empty = self._get_min_height(self.board)
             score -= (2 + empty)
         
-        if self.score >= 20000:
+        if self.score >= self.end_score:
             self.game_over = True
         
         return score, self.game_over
