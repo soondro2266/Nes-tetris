@@ -64,7 +64,7 @@ for i in tqdm(range(epoch)):
     max_score = max(max_score, game.score)
     
     if i % train_gap == 0:
-        model.train_dqn(min(0.5+0.9*(i/epoch), 0.95))
+        model.train_dqn()
 
     if i % add_score_gap == 0:
         all_score.append(max_score)

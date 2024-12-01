@@ -6,9 +6,10 @@ from TetrisDataset import TetrisDataset
 
 class DQN(nn.Module):
 
-    def __init__(self, device, state_dim=4, action_dim=1, batch_size=10, lr = 0.005):
+    def __init__(self, device, state_dim=4, action_dim=1, batch_size=10, lr = 0.005, discount = 0.95):
         super(DQN, self).__init__()
         #self.loss = []
+        self.discount = discount
         self.memory = []
         self.batch_size = batch_size
         self.device = device
@@ -34,14 +35,14 @@ class DQN(nn.Module):
         self.memory.append([state, best_state, reward, done])
 
 
-    def train_dqn(self, discount):# 1 episode
+    def train_dqn(self):# 1 episode
         x = [data[0] for data in self.memory]
         y = []
         for data in self.memory:
             if data[3] == 1:
                 y.append(data[2])
             else:
-                y.append(data[2]+discount * self.predict(data[1]))
+                y.append(data[2]+self.discount * self.predict(data[1]))
         ds = TetrisDataset(x, y, self.device)
         iterator = torch.utils.data.DataLoader(ds, self.batch_size, shuffle = True)
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
