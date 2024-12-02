@@ -1,7 +1,4 @@
 import torch
-from torch import nn
-import torch.nn.functional as F
-import TetrisDataset
 from DQN import DQN
 from tetris import tetris
 import matplotlib.pyplot as plt
@@ -10,7 +7,7 @@ from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
-filename = "modelv0.pth"
+#filename = "modelv0.pth"
 save_model = True
 
 train_gap = 1
@@ -76,8 +73,8 @@ for i in tqdm(range(epoch)):
         max_score = -1
     
     if save_model and game.score >= min(best_score, end_score):
-        torch.save(model.state_dict(), f"model\\{filename}")
-        print(f"\nsave model at score {game.score} point.")
+        torch.save(model.state_dict(), f"model\\modelv{i}.pth")
+        print(f"\nsave modelv{i} at score {game.score} point.")
         best_score = max(best_score, game.score)
     
     """if game.score >= end_score and t >= 2:
@@ -88,4 +85,7 @@ for i in tqdm(range(epoch)):
 
 all_score.append(best_score)
 plt.plot([i+1 for i in range(len(all_score))], all_score, 'r', linestyle='solid', label = 'train')
+plt.show()
+
+plt.plot([i+1 for i in range(len(model.loss))], model.loss, 'r', linestyle = 'solid', label = 'loss')
 plt.show()

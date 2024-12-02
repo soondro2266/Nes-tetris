@@ -92,7 +92,8 @@ class tetris:
             
         self._next_round()
         if self.game_over:
-            score -= 2
+            max_bump = self._get_max_bump(self.board)
+            score -= (6+0.5*max_bump)
         
         if self.score >= self.end_score:
             self.game_over = True
@@ -193,6 +194,15 @@ class tetris:
             bump += abs(tmp - tmp2)
             tmp = tmp2
         return bump
+    
+    def _get_max_bump(self, board):
+        max_bump = 0
+        tmp = self._get_height(0, board)
+        for i in range(1, tetris.BOARD_WIDTH):
+            tmp2 = self._get_height(i, board)
+            max_bump = max(max_bump, abs(tmp - tmp2))
+            tmp = tmp2
+        return max_bump
     
     def _clear_lines(self, board):
         clear = [idx for idx, row in enumerate(board) if sum(row) == tetris.BOARD_WIDTH]

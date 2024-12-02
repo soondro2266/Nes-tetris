@@ -8,7 +8,7 @@ class DQN(nn.Module):
 
     def __init__(self, device, state_dim=4, action_dim=1, batch_size=10, lr = 0.005, discount = 0.95):
         super(DQN, self).__init__()
-        #self.loss = []
+        self.loss = []
         self.discount = discount
         self.memory = []
         self.batch_size = batch_size
@@ -46,12 +46,16 @@ class DQN(nn.Module):
         ds = TetrisDataset(x, y, self.device)
         iterator = torch.utils.data.DataLoader(ds, self.batch_size, shuffle = True)
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        total_loss = 0.0
+        length = 0
         for x_batch, y_batch in iterator:
             optimizer.zero_grad()
             y_prediction = self.forward(x_batch)
             loss:torch.Tensor = self.criterion(y_prediction, y_batch.unsqueeze(dim = 1))
-            #self.loss.append(torch.mean(loss).item())
             loss.backward()
             optimizer.step()
+            length += 1
+            total_loss += loss
+        self.loss.append(total_loss/length)
         #clear memory
         self.memory = []
