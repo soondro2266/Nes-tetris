@@ -3,7 +3,7 @@ import torch
 from tetris import tetris
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-filename = "modelv0.pth"
+filename = "modelv1865.pth"
 
 
 model = DQN(device)
@@ -20,15 +20,22 @@ for i in range(50):
     while not done:
 
         states:dict = game.get_next_states()
-        max_q = -1000000
+        max_value = -1000000
         best_state = [0, 0, 0, 0]
         best_action = [3, 0]
         for action, state in states.items():
-            q = model.predict(state)
-            if q > max_q:
-                best_state = state
-                max_q = q
+            value = 0
+            if state[2]:
+                value = state[1]
+            else:
+                q = model.predict(state[0])
+                value = state[1]+0.95*q
+                
+            if value > max_value:
+                best_state = state[0]
+                max_value = value
                 best_action = action
+
         score, done = game.play(best_action[0], best_action[1], render=True)
     
     print(f"round {i+1}, score : {game.score}")
