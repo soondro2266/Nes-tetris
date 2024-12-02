@@ -3,7 +3,7 @@ import torch
 from tetris import tetris
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-filename = "modelv2.pth"
+filename = "modelv0.pth"
 
 
 model = DQN(device)
@@ -11,7 +11,7 @@ model.load_state_dict(torch.load(f"model\\{filename}", weights_only=True))
 model.eval()
 game = tetris(1000)
 
-for i in range(10):
+for i in range(50):
     game.reset()
     
     current_state = [0, 0, 0, 0]
@@ -31,4 +31,4 @@ for i in range(10):
                 best_action = action
         score, done = game.play(best_action[0], best_action[1], render=True)
     
-    print(f"round {i}, score : {game.score}")
+    print(f"round {i+1}, score : {game.score}")

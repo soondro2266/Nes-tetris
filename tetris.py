@@ -92,8 +92,7 @@ class tetris:
             
         self._next_round()
         if self.game_over:
-            empty = self._get_empty_count(self.board)
-            score -= (2 + empty)
+            score -= 2
         
         if self.score >= self.end_score:
             self.game_over = True
