@@ -72,7 +72,7 @@ for i in tqdm(range(epoch)):
         all_score.append(max_score)
         max_score = -1
     
-    if save_model and game.score >= min(best_score, end_score):
+    if save_model and game.score >= 20000:  #min(best_score, end_score):
         torch.save(model.state_dict(), f"model\\modelv{i}.pth")
         print(f"\nsave modelv{i} at score {game.score} point.")
         best_score = max(best_score, game.score)
