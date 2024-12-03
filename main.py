@@ -11,14 +11,15 @@ print(device)
 save_model = True
 
 train_gap = 1
-render_gap = 10001
-epoch = 10000
+render_gap = 2001
+epoch = 2000
 all_score = []
 batch_size = 128
-epsilon_start = 1
+epsilon_start = 0.9
 epsilon_end = 0
 epsilon_end_epoch = 1000
 add_score_gap = 30
+discount = 0.95
 
 max_score = -1
 best_score = -1
@@ -45,24 +46,40 @@ for i in tqdm(range(epoch)):
         
         states:dict = game.get_next_states()
         if random.random() <= max(epsilon_end, epsilon_start - (epsilon_start - epsilon_end)*(i / epsilon_end_epoch)):
-            best_action = random.choice(list(states))
-            best_state = states[best_action]
+            action = random.choice(list(states))
+            state = states[action][0]
+            score, done = game.play(action[0], action[1], render=to_render)
+            if done:
+                value = score
+            else:
+                value = score + discount * model.predict(state)
+            model.add_memory(current_state, value)
+            current_state = state
         else:
-            max_q = -1000000
+            max_value = -1000000
             best_state = [0, 0, 0, 0]
             best_action = [3, 0]
             for action, state in states.items():
-                q = model.predict(state)
-                if q > max_q:
-                    best_state = state
-                    max_q = q
+                value = 0
+                if state[2]:
+                    value = state[1]
+                else:
+                    q = model.predict(state[0])
+                    value = state[1]+discount*q
+                 
+                if value > max_value:
+                    best_state = state[0]
+                    max_value = value
                     best_action = action
 
-        score, done = game.play(best_action[0], best_action[1], render=to_render)
+            score, done = game.play(best_action[0], best_action[1], render=to_render)
+            model.add_memory(current_state, max_value)
+            current_state = best_state
 
-        model.add_memory(current_state, best_state, score, done)
-        current_state = best_state
+        
 
+
+        
     max_score = max(max_score, game.score)
     
     if i % train_gap == 0:
@@ -72,7 +89,7 @@ for i in tqdm(range(epoch)):
         all_score.append(max_score)
         max_score = -1
     
-    if save_model and game.score >= 20000:  #min(best_score, end_score):
+    if save_model and game.score >= min(best_score, end_score):
         torch.save(model.state_dict(), f"model\\modelv{i}.pth")
         print(f"\nsave modelv{i} at score {game.score} point.")
         best_score = max(best_score, game.score)
