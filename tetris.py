@@ -95,9 +95,13 @@ class tetris:
             max_bump = self._get_max_bump(self.board)
             score -= (6+0.5*max_bump)
         
+        self.score += score
+
         if self.score >= self.end_score:
-            self.game_over = True
-        
+            game_over = True
+
+        self.game_over = game_over
+
         return score, self.game_over
 
     def get_next_states(self):
@@ -237,8 +241,22 @@ class tetris:
         self.current_block = self.waiting_queue.pop()
         self.current_pos = [3, 0]
         self.current_rotation = 0
-        if self._check_error(self._rotate_block(0), self.current_pos):
-            self.game_over = True
+            
+    def _next_block_gameover(self,line_cleared, board):
+        self._check_queue()
+
+        score = 1
+        if line_cleared >= 1:
+            score += (line_cleared ** 2) * tetris.BOARD_WIDTH
+        game_over = False
+
+        if self._check_error(self._rotate_block(0, self.waiting_queue[0]), [3, 0], board):
+            game_over = True
+        
+        if game_over:
+            score -= 2
+
+        return score, game_over
 
 
     def render(self, borad):

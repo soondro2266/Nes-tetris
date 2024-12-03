@@ -11,8 +11,8 @@ print(device)
 save_model = True
 
 train_gap = 1
-render_gap = 2001
-epoch = 2000
+render_gap = 10001
+epoch = 10000
 all_score = []
 batch_size = 128
 epsilon_start = 1
