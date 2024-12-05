@@ -94,6 +94,10 @@ class tetris:
             self._next_round()
         
         self.score += score
+
+        if self.score >= self.end_score:
+            game_over = True
+
         self.game_over = game_over
 
         return score, self.game_over

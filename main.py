@@ -23,7 +23,7 @@ discount = 0.95
 
 max_score = -1
 best_score = -1
-end_score = 20000
+end_score = 10000
 
 t = 0
 
@@ -104,5 +104,5 @@ all_score.append(best_score)
 plt.plot([i+1 for i in range(len(all_score))], all_score, 'r', linestyle='solid', label = 'train')
 plt.show()
 
-plt.plot([i+1 for i in range(len(model.loss))], model.loss, 'r', linestyle = 'solid', label = 'loss')
+plt.plot([i+1 for i in range(len(model.loss))], model.loss, 'b', linestyle = 'solid', label = 'loss')
 plt.show()

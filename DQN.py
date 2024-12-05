@@ -31,18 +31,13 @@ class DQN(nn.Module):
         x3 = F.relu(self.L3(x2))
         return self.L4(x3)
 
-    def add_memory(self, state, best_state, reward, done):
-        self.memory.append([state, best_state, reward, done])
+    def add_memory(self, state, value):
+        self.memory.append([state, value])
 
 
     def train_dqn(self):# 1 episode
         x = [data[0] for data in self.memory]
-        y = []
-        for data in self.memory:
-            if data[3] == 1:
-                y.append(data[2])
-            else:
-                y.append(data[2]+self.discount * self.predict(data[1]))
+        y = [data[1] for data in self.memory]
         ds = TetrisDataset(x, y, self.device)
         iterator = torch.utils.data.DataLoader(ds, self.batch_size, shuffle = True)
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
@@ -55,7 +50,7 @@ class DQN(nn.Module):
             loss.backward()
             optimizer.step()
             length += 1
-            total_loss += loss
+            total_loss += loss.item()
         self.loss.append(total_loss/length)
         #clear memory
         self.memory = []
