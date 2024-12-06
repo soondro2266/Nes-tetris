@@ -49,8 +49,8 @@ class DQN(nn.Module):
             loss:torch.Tensor = self.criterion(y_prediction, y_batch.unsqueeze(dim = 1))
             loss.backward()
             optimizer.step()
-            length += 1
-            total_loss += loss.item()
+            length += len(y_batch)
+            total_loss += loss.item()*len(y_batch)
         self.loss.append(total_loss/length)
         #clear memory
         self.memory = []

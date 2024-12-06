@@ -12,7 +12,7 @@ save_model = True
 
 train_gap = 1
 render_gap = 2001
-epoch = 2000
+epoch = 1500
 all_score = []
 batch_size = 128
 epsilon_start = 0.9
@@ -101,7 +101,7 @@ for i in tqdm(range(epoch)):
     
 
 all_score.append(best_score)
-plt.plot([i+1 for i in range(len(all_score))], all_score, 'r', linestyle='solid', label = 'train')
+plt.plot([i*add_score_gap+1 for i in range(len(all_score))], all_score, 'r', linestyle='solid', label = 'train')
 plt.show()
 
 plt.plot([i+1 for i in range(len(model.loss))], model.loss, 'b', linestyle = 'solid', label = 'loss')

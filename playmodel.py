@@ -3,7 +3,7 @@ import torch
 from tetris import tetris
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-filename = "modelv1865.pth"
+filename = "modelv1498.pth"
 
 
 model = DQN(device)
