@@ -4,10 +4,10 @@ import torch.nn.functional as F
 from TetrisDataset import TetrisDataset
 
 
-class DQN(nn.Module):
+class MyDQN(nn.Module):
 
     def __init__(self, device, state_dim=4, action_dim=1, batch_size=10, lr = 0.005, discount = 0.95):
-        super(DQN, self).__init__()
+        super(MyDQN, self).__init__()
         self.loss = []
         self.discount = discount
         self.memory = []

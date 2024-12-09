@@ -55,8 +55,13 @@ class tetris:
 
     COLORS = {
         0: (255, 255, 255),
-        1: (247, 64, 99),
-        2: (0, 167, 247),
+        1: (0, 240, 240),#I
+        2: (160, 0, 240),#T
+        3: (240, 160, 0),#L
+        4: (0, 0, 240),#J
+        5: (240, 0, 0),#Z
+        6: (0, 240, 0),#S
+        7: (240, 240, 0)#o
     }
 
     def __init__(self, end_score):
@@ -80,15 +85,15 @@ class tetris:
         
         while not self._check_error(self._rotate_block(rotation, self.current_block), self.current_pos, self.board):
             if render:
-                self.render(self._add_block(self._rotate_block(rotation, self.current_block), self.current_pos))
+                self.render(self._add_block(self._rotate_block(rotation, self.current_block), self.current_pos, self.current_block))
                 sleep(0.01)
             self.current_pos[1] += 1
         self.current_pos[1] -= 1
         
-        self.board = self._add_block(self._rotate_block(rotation, self.current_block), self.current_pos)
+        self.board = self._add_block(self._rotate_block(rotation, self.current_block), self.current_pos, self.current_block)
         line_cleared, self.board = self._clear_lines(self.board)
 
-        score, game_over = self._next_block_gameover(line_cleared, self.board)
+        score, game_over = self._get_reward_check_if_end(line_cleared, self.board)
 
         if not game_over:
             self._next_round()
@@ -131,30 +136,31 @@ class tetris:
 
                 # Valid move
                 if pos[1] >= 0:
-                    board = self._add_block(piece, pos)
+                    board = self._add_block(piece, pos, piece_id)
                     states[(x, rotation)] = self._do_state(board)
 
         return states
 
     def _get_reward_check_if_end(self, line_cleared, board):
+        self._check_queue()
+
         score = 1 + (line_cleared ** 2) * tetris.BOARD_WIDTH
-        gameover = False    
+        game_over = False
 
-        if self._next_block_gameover(board):
-            score -= 2
-            gameover = True
+        if self._check_error(self._rotate_block(0, self.waiting_queue[0]), [3, 0], board):
+            game_over = True
         
-        if self.score >= self.end_score:
-            gameover = True
+        if game_over:
+            score -= 2
 
-        return score, gameover 
+        return score, game_over 
 
     def _do_state(self, board)->tuple[list[int], int, bool]:
         line, board = self._clear_lines(board)
         hole = self._get_hole(board)
         bump = self._get_bump(board)
         total_height = self._get_total_height(board)
-        score, gameover = self._next_block_gameover(line, board)
+        score, gameover = self._get_reward_check_if_end(line, board)
         return ([line, hole, bump, total_height], score, gameover)
 
     def _check_queue(self):
@@ -196,7 +202,7 @@ class tetris:
             for i in range(tetris.BOARD_HEIGHT):
                 if board[i][j] == 0 and flag == 1:
                     current_hole += 1
-                elif board[i][j] == 1: 
+                elif board[i][j] >= 1: 
                     flag = 1
             hole += current_hole
         return hole
@@ -220,20 +226,35 @@ class tetris:
         return max_bump
     
     def _clear_lines(self, board):
-        clear = [idx for idx, row in enumerate(board) if sum(row) == tetris.BOARD_WIDTH]
+        new_board = []
+        clear = 0
+        for x in range(tetris.BOARD_HEIGHT):
+            block_cnt = 0
+            for y in range(tetris.BOARD_WIDTH):
+                if board[x][y] > 0:
+                    block_cnt += 1
+            if block_cnt != tetris.BOARD_WIDTH:
+                new_board.append(board[x])
+            else:
+                clear += 1
+        for _ in range(clear):
+            new_board.insert(0, [0 for _ in range(tetris.BOARD_WIDTH)])
+        return clear, new_board
+
+        """ clear = [idx for idx, row in enumerate(board) if sum(row) == tetris.BOARD_WIDTH]
         if clear:
             board = [row for idx, row in enumerate(board) if idx not in clear]
             for _ in clear:
                 board.insert(0, [0 for _ in range(tetris.BOARD_WIDTH)])
-        return len(clear), board
+        return len(clear), board """
 
     def _rotate_block(self, angle, block):
         return tetris.TETROMINOS[block][angle]
 
-    def _add_block(self, block, pos):       
+    def _add_block(self, block, pos, block_id):       
         board = [x[:] for x in self.board]
         for x, y in block:
-            board[y + pos[1]][x + pos[0]] = 1
+            board[y + pos[1]][x + pos[0]] = block_id+1
         return board
     
     def _check_error(self, block, pos, board):
@@ -252,21 +273,6 @@ class tetris:
         self.current_block = self.waiting_queue.pop()
         self.current_pos = [3, 0]
         self.current_rotation = 0
-            
-    def _next_block_gameover(self,line_cleared, board):
-        self._check_queue()
-
-        score = 1 + (line_cleared ** 2) * tetris.BOARD_WIDTH
-        game_over = False
-
-        if self._check_error(self._rotate_block(0, self.waiting_queue[0]), [3, 0], board):
-            game_over = True
-        
-        if game_over:
-            score -= 2
-
-        return score, game_over
-
 
     def render(self, borad):
         img = [tetris.COLORS[p] for row in borad for p in row]

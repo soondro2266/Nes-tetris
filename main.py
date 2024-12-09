@@ -1,5 +1,5 @@
 import torch
-from DQN import DQN
+from DQN import MyDQN
 from tetris import tetris
 import matplotlib.pyplot as plt
 import random
@@ -28,7 +28,7 @@ end_score = 10000
 t = 0
 
 game = tetris(end_score)
-model = DQN(device, batch_size=batch_size)
+model = MyDQN(device, batch_size=batch_size)
 
 for i in tqdm(range(epoch)):
     game.reset()
