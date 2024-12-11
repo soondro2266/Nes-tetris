@@ -3,13 +3,13 @@ import torch
 from tetris import tetris
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-filename = "1206_2\\modelv1498.pth"
+filename = "model.pth"
 
 
 model = MyDQN(device)
 model.load_state_dict(torch.load(f"model\\{filename}", weights_only=True))
 model.eval()
-game = tetris(1000)
+game = tetris(5000)
 
 for i in range(50):
     game.reset()
