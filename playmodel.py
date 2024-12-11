@@ -7,7 +7,7 @@ filename = "model.pth"
 
 
 model = MyDQN(device)
-model.load_state_dict(torch.load(f"model\\{filename}", weights_only=True))
+model.load_state_dict(torch.load(f"{filename}", weights_only=True))
 model.eval()
 game = tetris(5000)
 
